@@ -1,13 +1,14 @@
+const { argv } = require("yargs");
 const Yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
 const argVectors = Yargs(hideBin(process.argv)).argv;
 const { client, connection } = require("./db/connection.js");
-const { add, list, update, remove } = require("./db/crud-ops.js");
+const { add, list, update, remove, drop } = require("./db/crud-ops.js");
 
 // Adds arguments as undefined if not stated for semantic reasons:
 
-if (!argVectors.song && !argVectors.list) {
-  throw new Error("A song must be given as an option");
+if (!argVectors.song) {
+  argVectors.song = undefined;
 }
 
 if (!argVectors.album) {
@@ -18,6 +19,14 @@ if (!argVectors.artist) {
   argVectors.artist = undefined;
 }
 
+// Enforces requirement of at least one argument must be given (unless dropping a collection):
+
+if (!argVectors.drop && !(argVectors.song || argVectors.album || argVectors.artist)) {
+  throw new Error(
+    "At least one songInfo argument (example: --song || --album || --artist) must be given in command: YOU ABSOLUTE MORONIC FOOL!!!"
+  );
+}
+
 // Using an IFEE for invoke:
 
 (async () => {
@@ -25,21 +34,31 @@ if (!argVectors.artist) {
 
   try {
     if (argVectors.add) {
-      // Removes uneeded properties from object (song info):
+      const permittedArgs = ["song", "album", "artist"];
+      const songInfo = {};
+      // Adds required properties to songInfo object:
       for (let key in argVectors) {
-        if (key != ("song" || "album" || "artist")) {
-          delete argVectors.key;
+        for (
+          let permittedArg = 0;
+          permittedArg < permittedArgs.length;
+          permittedArg++
+        ) {
+          if (key == permittedArgs[permittedArg]) {
+            songInfo[key] = argVectors[key];
+          }
         }
       }
-      await add(collection, argVectors);
+      await add(collection, songInfo);
     } else if (argVectors.list) {
       console.log(await list(collection));
     } else if (argVectors.update) {
       await update(collection);
     } else if (argVectors.remove) {
       await remove(collection);
+    } else if (argVectors.drop) {
+      await drop(collection);
     } else {
-      console.log("Incorrect command");
+      console.log("Incorrect CRUD command");
     }
   } catch (error) {
     console.log(error);

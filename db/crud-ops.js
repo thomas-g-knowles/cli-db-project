@@ -14,4 +14,8 @@ const remove = async (collection, songInfo) => {
   return "remove invoked"
 }
 
-module.exports = { add, list, update, remove };
+const drop = async (collection) => {
+  await collection.drop()
+}
+
+module.exports = { add, list, update, remove, drop };
