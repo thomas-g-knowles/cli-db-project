@@ -1,29 +1,29 @@
 const { argv } = require("yargs");
 const Yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
-const argVectors = Yargs(hideBin(process.argv)).argv;
+const arguments = Yargs(hideBin(process.argv)).argv;
 const { client, connection } = require("./db/connection.js");
 const { add, list, update, remove, drop } = require("./db/crud-ops.js");
 
-// Adds arguments as undefined if not stated for semantic reasons:
+// Converts all args to lowercase for smooth user experience:
 
-if (!argVectors.song) {
-  argVectors.song = undefined;
-}
+const argVectors = Object.fromEntries(
+  Object.entries(arguments).map(([k, v]) => [k.toLowerCase(), v])
+);
 
-if (!argVectors.album) {
-  argVectors.album = undefined;
-}
+// Enforces requirements of certain argument(s) depending on CRUD command (unless dropping a collection):
 
-if (!argVectors.artist) {
-  argVectors.artist = undefined;
-}
-
-// Enforces requirement of at least one argument must be given (unless dropping a collection):
-
-if (!argVectors.drop && !(argVectors.song || argVectors.album || argVectors.artist)) {
+if ((argVectors.add || argVectors.remove) && !(argVectors.song || argVectors.album || argVectors.artist || argVectors.genre)) {
   throw new Error(
-    "At least one songInfo argument (example: --song || --album || --artist) must be given in command: YOU ABSOLUTE MORONIC FOOL!!!"
+    "At least one argument (example: --song || --album || --artist || --genre) must be given for --add or --remove command"
+  );
+} else if (argVectors.list && !(argVectors.list == "all" || argVectors.song || argVectors.album || argVectors.artist || argVectors.genre)) {
+  throw new Error(
+    "At least one argument (example: --song || --album || --artist || --genre) must be given for --list command"
+  );
+} else if (argVectors.update && !(argVectors.song || argVectors.album || argVectors.artist || argVectors.genre) && argVectors.with) {
+  throw new Error(
+    "At least one argument (example: --song || --album || --artist || --genre) and --with must be given in conjunction with --update"
   );
 }
 
@@ -34,31 +34,17 @@ if (!argVectors.drop && !(argVectors.song || argVectors.album || argVectors.arti
 
   try {
     if (argVectors.add) {
-      const permittedArgs = ["song", "album", "artist"];
-      const songInfo = {};
-      // Adds required properties to songInfo object:
-      for (let key in argVectors) {
-        for (
-          let permittedArg = 0;
-          permittedArg < permittedArgs.length;
-          permittedArg++
-        ) {
-          if (key == permittedArgs[permittedArg]) {
-            songInfo[key] = argVectors[key];
-          }
-        }
-      }
-      await add(collection, songInfo);
+      await add(collection, argVectors);
     } else if (argVectors.list) {
-      console.log(await list(collection));
+      console.log(await list(collection, argVectors));
     } else if (argVectors.update) {
-      await update(collection);
+      await update(collection, argVectors);
     } else if (argVectors.remove) {
-      await remove(collection);
+      await remove(collection, argVectors);
     } else if (argVectors.drop) {
       await drop(collection);
     } else {
-      console.log("Incorrect CRUD command");
+      throw new Error("Incorrect CRUD command");
     }
   } catch (error) {
     console.log(error);
