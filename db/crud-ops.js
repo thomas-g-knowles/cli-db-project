@@ -1,3 +1,5 @@
+const { showCompletionScript } = require("yargs");
+
 const add = async (collection, argVectors) => {
   const addCommand = {};
 
@@ -24,32 +26,47 @@ const list = async (collection, argVectors) => {
   const listCommand = {};
   const retrievedData = [];
 
-  // Adds arguments as undefined if not stated for semantic reasons:
+  // Adds arguments that were given originally to new object (listCommand):
 
-  if (argVectors.list == "all") listCommand.list = argVectors.list;
   if (argVectors.song) listCommand.song = argVectors.song;
   if (argVectors.album) listCommand.album = argVectors.album;
   if (argVectors.artist) listCommand.artist = argVectors.artist;
   if (argVectors.genre) listCommand.genre = argVectors.genre;
 
-  for (let key in listCommand) {
-    if (key == "list" && listCommand.list == "all") retrievedData.push({all: JSON.stringify(await collection.find({}).toArray())});
-    else retrievedData.push({[key]: JSON.stringify(await collection.find({[key]: listCommand[key]}).toArray())});
-  }
+  //console.log(...listCommand)
+
+  if (argVectors.list == "all") retrievedData.push({all: JSON.stringify(await collection.find({}).toArray())});
+  if (listCommand.song || listCommand.album || listCommand.artist || listCommand.genre) retrievedData.push({[JSON.stringify(listCommand)]: JSON.stringify(await collection.find({...listCommand}).toArray())});
 
   return retrievedData
 };
 
 const update = async (collection, argVectors) => {
-  updateCommand = {};
+  const updateCommand = {};
 
-  return "update invoked";
+  // Adds arguments that were given originally to new object (updateCommand):
+
+  if (argVectors.song) updateCommand.song = argVectors.song;
+  if (argVectors.album) updateCommand.album = argVectors.album;
+  if (argVectors.artist) updateCommand.artist = argVectors.artist;
+  if (argVectors.genre) updateCommand.genre = argVectors.genre;
+
+  await collection.updateMany({...updateCommand}, {$set: {[argVectors.update]: argVectors.with}})
 };
 
 const remove = async (collection, argVectors) => {
-  removeCommand = {};
+  const removeCommand = {};
 
-  return "remove invoked";
+  // Adds arguments that were given originally to new object (removeCommand):
+
+  if (argVectors.song) removeCommand.song = argVectors.song;
+  if (argVectors.album) removeCommand.album = argVectors.album;
+  if (argVectors.artist) removeCommand.artist = argVectors.artist;
+  if (argVectors.genre) removeCommand.genre = argVectors.genre;
+
+  for (let key in removeCommand) {
+    await collection.deleteMany({[key]: removeCommand[key]})
+  }
 };
 
 const drop = async (collection) => {

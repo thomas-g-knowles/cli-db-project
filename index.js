@@ -21,9 +21,9 @@ if ((argVectors.add || argVectors.remove) && !(argVectors.song || argVectors.alb
   throw new Error(
     "At least one argument (example: --song || --album || --artist || --genre) must be given for --list command"
   );
-} else if (argVectors.update && !(argVectors.song || argVectors.album || argVectors.artist || argVectors.genre) && argVectors.with) {
+} else if (argVectors.update && !(argVectors.song || argVectors.album || argVectors.artist || argVectors.genre) || !argVectors.with) {
   throw new Error(
-    "At least one argument (example: --song || --album || --artist || --genre) and --with must be given in conjunction with --update"
+    "At least one argument (example: --song || --album || --artist || --genre) and --with must be given in conjunction with a value for --update"
   );
 }
 
