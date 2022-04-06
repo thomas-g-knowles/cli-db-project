@@ -64,9 +64,7 @@ const remove = async (collection, argVectors) => {
   if (argVectors.artist) removeCommand.artist = argVectors.artist;
   if (argVectors.genre) removeCommand.genre = argVectors.genre;
 
-  for (let key in removeCommand) {
-    await collection.deleteMany({[key]: removeCommand[key]})
-  }
+  await collection.deleteMany({...removeCommand})
 };
 
 const drop = async (collection) => {
