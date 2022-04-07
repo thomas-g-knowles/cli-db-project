@@ -85,8 +85,13 @@ const remove = async (collection, argVectors) => {
 };
 
 const drop = async (collection) => {
-  await collection.drop();
-  console.log("MongoDB collection dropped successfully.");
+  try {
+    await collection.drop();
+    console.log("MongoDB collection dropped successfully.");
+  } catch (error) {
+    console.log(error)
+    throw new Error("You cannot drop a collection that does not exist")
+  }
 };
 
 module.exports = { add, list, update, remove, drop };
