@@ -13,15 +13,41 @@ const argVectors = Object.fromEntries(
 
 // Enforces requirements of certain argument(s) depending on CRUD command (unless dropping a collection):
 
-if ((argVectors.add || argVectors.remove) && !(argVectors.song || argVectors.album || argVectors.artist || argVectors.genre)) {
+if (
+  (argVectors.add || argVectors.remove) &&
+  !(
+    argVectors.song ||
+    argVectors.album ||
+    argVectors.artist ||
+    argVectors.genre
+  )
+) {
   throw new Error(
     "At least one argument (example: --song || --album || --artist || --genre) must be given for --add or --remove command"
   );
-} else if (argVectors.list && !(argVectors.list == "all" || argVectors.song || argVectors.album || argVectors.artist || argVectors.genre)) {
+} else if (
+  argVectors.list &&
+  !(
+    argVectors.list == "all" ||
+    argVectors.song ||
+    argVectors.album ||
+    argVectors.artist ||
+    argVectors.genre
+  )
+) {
   throw new Error(
     "At least one argument (example: --song || --album || --artist || --genre) must be given for --list command"
   );
-} else if (argVectors.update && !((argVectors.song || argVectors.album || argVectors.artist || argVectors.genre) && argVectors.with)) {
+} else if (
+  argVectors.update &&
+  !(
+    (argVectors.song ||
+      argVectors.album ||
+      argVectors.artist ||
+      argVectors.genre) &&
+    argVectors.with
+  )
+) {
   throw new Error(
     "At least one argument (example: --song || --album || --artist || --genre) and --with must be given in conjunction with a value for --update"
   );
@@ -31,6 +57,7 @@ if ((argVectors.add || argVectors.remove) && !(argVectors.song || argVectors.alb
 
 (async () => {
   const collection = await connection();
+  console.log("Connection to Mongo database established successfully.");
 
   try {
     if (argVectors.add) {

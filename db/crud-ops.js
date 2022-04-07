@@ -1,5 +1,3 @@
-const { showCompletionScript } = require("yargs");
-
 const add = async (collection, argVectors) => {
   const addCommand = {};
 
@@ -20,6 +18,7 @@ const add = async (collection, argVectors) => {
   // Inserts song info into the database collection:
 
   await collection.insertOne(addCommand);
+  console.log("Song data added to MongoDB successfully");
 };
 
 const list = async (collection, argVectors) => {
@@ -33,12 +32,25 @@ const list = async (collection, argVectors) => {
   if (argVectors.artist) listCommand.artist = argVectors.artist;
   if (argVectors.genre) listCommand.genre = argVectors.genre;
 
-  //console.log(...listCommand)
+  if (argVectors.list == "all")
+    retrievedData.push({
+      all: JSON.stringify(await collection.find({}).toArray()),
+    });
+  if (
+    listCommand.song ||
+    listCommand.album ||
+    listCommand.artist ||
+    listCommand.genre
+  )
+    retrievedData.push({
+      [JSON.stringify(listCommand)]: JSON.stringify(
+        await collection.find({ ...listCommand }).toArray()
+      ),
+    });
 
-  if (argVectors.list == "all") retrievedData.push({all: JSON.stringify(await collection.find({}).toArray())});
-  if (listCommand.song || listCommand.album || listCommand.artist || listCommand.genre) retrievedData.push({[JSON.stringify(listCommand)]: JSON.stringify(await collection.find({...listCommand}).toArray())});
-
-  return retrievedData
+  if (Object.values(retrievedData[0])[0] == "[]") console.log(`MongoDB search query yeilded 0 results`)
+  else console.log("MongoDB was searched.");
+  return retrievedData;
 };
 
 const update = async (collection, argVectors) => {
@@ -51,7 +63,11 @@ const update = async (collection, argVectors) => {
   if (argVectors.artist) updateCommand.artist = argVectors.artist;
   if (argVectors.genre) updateCommand.genre = argVectors.genre;
 
-  await collection.updateMany({...updateCommand}, {$set: {[argVectors.update]: argVectors.with}})
+  await collection.updateMany(
+    { ...updateCommand },
+    { $set: { [argVectors.update]: argVectors.with } }
+  );
+  console.log("Update query was executed.");
 };
 
 const remove = async (collection, argVectors) => {
@@ -64,11 +80,13 @@ const remove = async (collection, argVectors) => {
   if (argVectors.artist) removeCommand.artist = argVectors.artist;
   if (argVectors.genre) removeCommand.genre = argVectors.genre;
 
-  await collection.deleteMany({...removeCommand})
+  await collection.deleteMany({ ...removeCommand });
+  console.log("Delete query was executed.");
 };
 
 const drop = async (collection) => {
   await collection.drop();
+  console.log("MongoDB collection dropped successfully.");
 };
 
 module.exports = { add, list, update, remove, drop };

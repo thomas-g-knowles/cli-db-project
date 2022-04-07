@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart": "echo \"Starting app\"",
+    "prestart": "echo \"Starting CLI app\"",
     "start": "node index.js",
-    "poststart": "echo \"Stopping app\""
+    "poststart": "echo \"Stopping CLI app\""
   },
   "keywords": [],
   "author": "",

@@ -10,6 +10,7 @@ Note: Command line accepts all cases - all keys are converted to lower anyway. H
 Note: Adding/specifying the same argument more than once will result in nothing being done with it, as the app is not programmed to parse 2D argument vectors - one argument at a time.
 Note: Giving two CRUD arguments at once may result in unexpected results and is not recommended - the CLI application was not built to be used in such ways.
 Note: Be aware that collection documents can be duplicates (obviously will posess unique ID's) - adding identical data more than once IS allowed.
+Note: App can be started using either npm start -- (arguments go after initial dashes) or node index.js
 Note: CAPS in descriptions defines arguments.
 
 <=--------------------------------- CLI APP USE ---------------------------------=>
